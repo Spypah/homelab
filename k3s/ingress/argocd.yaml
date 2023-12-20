@@ -1,0 +1,44 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server
+  namespace: argocd
+  annotations:
+    cert-manager.io/clusterissuer: "cert-manager-webhook-duckdns-production"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: argo.spypahtest.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              name: https
+  tls:
+  - hosts:
+    - argo.spypahtest.duckdns.org
+    secretName: spypahtest.duckdns.org-tls
+
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: spypahtest.duckdns.org
+  namespace: argocd
+spec:
+  dnsNames:
+  - 'spypahtest.duckdns.org'
+  - '*.spypahtest.duckdns.org'
+  issuerRef:
+    name: cert-manager-webhook-duckdns-production
+    kind: ClusterIssuer
+  secretName: spypahtest.duckdns.org-tls

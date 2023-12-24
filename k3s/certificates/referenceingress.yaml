@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: expose-service
+  namespace: cert-manager
+  annotations:
+    cert-manager.io/clusterissuer: "cert-manager-webhook-duckdns-production"
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: service.spypahtest.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: expose-service
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - service.spypahtest.duckdns.org
+    secretName: spypahtest.duckdns.org-tls
